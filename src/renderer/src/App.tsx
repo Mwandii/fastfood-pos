@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 
 function App() {
   useEffect(() => {
-    window.api.ping().then((result) => {
-      console.log(result)
+    window.api.getProducts().then((products) => {
+      console.log(products)
     })
   }, [])
 
