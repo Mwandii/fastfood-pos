@@ -21,8 +21,28 @@ interface Product {
   variants: ProductVariant[]
 }
 
+interface CartItemInput {
+  productId: number
+  variantId: number | null
+  name: string
+  unitPrice: number
+  quantity: number
+  lineTotal: number
+}
+
+interface CreateSaleInput {
+  items: CartItemInput[]
+  paymentMethod: 'cash' | 'mpesa'
+}
+
+interface CreateSaleResult {
+  saleId: number
+  total: number
+}
+
 interface Api {
   getProducts: () => Promise<Product[]>
+  createSale: (input: CreateSaleInput) => Promise<CreateSaleResult>
 }
 
 declare global {

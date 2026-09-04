@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import { runMigrations } from './db/schema'
 import { seedDatabase } from './db/seed'
 import { registerProductHandlers } from './ipc/productHandlers'
+import { registerSaleHandlers } from './ipc/saleHandlers'
 
 function createWindow(): void {
   // Create the browser window.
@@ -45,6 +46,7 @@ app.whenReady().then(() => {
   runMigrations()
   seedDatabase()
   registerProductHandlers()
+  registerSaleHandlers()
 
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')

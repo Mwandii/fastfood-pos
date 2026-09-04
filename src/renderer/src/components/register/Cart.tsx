@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { useCartStore } from '../../store/cartStore'
+import CheckoutPanel from './CheckoutPanel'
 
 function Cart() {
   const items = useCartStore((state) => state.items)
@@ -6,6 +8,42 @@ function Cart() {
   const decrementItem = useCartStore((state) => state.decrementItem)
   const removeItem = useCartStore((state) => state.removeItem)
   const getTotal = useCartStore((state) => state.getTotal)
+  const clearCart = useCartStore((state) => state.clearCart)
+
+  const [showCheckout, setShowCheckout] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  async function handleConfirmPayment(paymentMethod: 'cash' | 'mpesa'): Promise<void> {
+    setIsProcessing(true)
+    setErrorMessage(null)
+    try {
+      await window.api.createSale({
+        items: items.map((item) => ({
+          productId: item.productId,
+          variantId: item.variantId,
+          name: item.name,
+          unitPrice: item.unitPrice,
+          quantity: item.quantity,
+          lineTotal: item.lineTotal
+        })),
+        paymentMethod
+      })
+
+      clearCart()
+      setShowCheckout(false)
+    } catch (error) {
+      console.error('Failed to create sale:', error)
+      setErrorMessage('Something went wrong saving this sale. Please try again.')
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  function handleCloseCheckout(): void {
+    setShowCheckout(false)
+    setErrorMessage(null)
+  }
 
   return (
     <div className="flex flex-col h-full bg-gray-800 rounded-lg">
@@ -58,12 +96,24 @@ function Cart() {
           <span>KSh {getTotal()}</span>
         </div>
         <button
+          onClick={() => setShowCheckout(true)}
           disabled={items.length === 0}
           className="w-full py-3 rounded-lg bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-500 text-white font-semibold"
         >
           Checkout
         </button>
       </div>
+
+      {showCheckout && (
+        <CheckoutPanel
+          items={items}
+          total={getTotal()}
+          onConfirm={handleConfirmPayment}
+          onClose={handleCloseCheckout}
+          isProcessing={isProcessing}
+          errorMessage={errorMessage}
+        />
+      )}
     </div>
   )
 }

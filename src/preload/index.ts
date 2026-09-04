@@ -3,7 +3,18 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  getProducts: () => ipcRenderer.invoke('products:getAll')
+  getProducts: () => ipcRenderer.invoke('products:getAll'),
+  createSale: (input: {
+    items: {
+      productId: number
+      variantId: number | null
+      name: string
+      unitPrice: number
+      quantity: number
+      lineTotal: number
+    }[]
+    paymentMethod: 'cash' | 'mpesa'
+  }) => ipcRenderer.invoke('sales:create', input)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
